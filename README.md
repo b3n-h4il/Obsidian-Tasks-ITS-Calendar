@@ -1,9 +1,11 @@
-# Taskido: Obsidian-Tasks-Timeline
-## [Click here!](https://github.com/702573N/Obsidian-Tasks-Timeline)
-
-<p align="center"><img width="400" alt="Semi_Transparent" src="https://user-images.githubusercontent.com/59178587/210307060-5ed916ee-819d-46b1-9a5e-efdd15728957.png"></p>
+# Fair Warning
+> [!WARNING]  
+> Alterations from the original project made by GTP
 
 ---
+
+# What this fork does:
+#### Adds the capability to render  [ITS theme's custom checkboxes](https://publish.obsidian.md/slrvb-docs/ITS+Theme/Alternate+Checkboxes) icons to the calendar.
 
 # Obsidian-Tasks-Calendar
 #### A custom view build with [Obsidian-Dataview](https://github.com/blacksmithgu/obsidian-dataview) to display tasks from [Obsidian-Tasks](https://github.com/obsidian-tasks-group/obsidian-tasks) and from your daily notes in a highly customisable calendar with a wide variety of views
