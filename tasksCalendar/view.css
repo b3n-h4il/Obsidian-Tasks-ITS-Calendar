@@ -589,6 +589,230 @@ body:not(.is-mobile) .tasksCalendar .task:hover {
 	color: var(--text-faint);
 }
 
+/* ITS checkbox icons in Tasks Calendar */
+.tasksCalendar .task-status-icon {
+    display: inline-flex;
+    flex: 0 0 1.2em;
+    width: 1.2em;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.3em;
+    font-family: "its";
+    font-size: 1em;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.tasksCalendar .task-status-icon::before {
+    display: inline-block;
+}
+
+/* Standard unchecked checkbox */
+.tasksCalendar .task-status-icon[data-status="space"]::before {
+    content: "";
+    width: 0.75em;
+    height: 0.75em;
+    border: 1px solid var(--checkbox-border-color, var(--text-muted));
+    border-radius: 3px;
+}
+
+/* Completed: lowercase x uses the normal checkmark */
+.tasksCalendar .task-status-icon[data-status="x"]::before {
+    content: "✓";
+    font-family: sans-serif;
+}
+
+/* ITS custom checkbox markers */
+.tasksCalendar .task-status-icon[data-status="X"]::before {
+    content: "\ec01";
+    color: var(--accent2-lite, var(--text-accent));
+}
+
+.tasksCalendar .task-status-icon[data-status="-"]::before {
+    content: "\ec02";
+    color: rgb(var(--chbx-d));
+}
+
+.tasksCalendar .task-status-icon[data-status=">"]::before {
+    content: "\ec03";
+    color: var(--text-normal);
+}
+
+.tasksCalendar .task-status-icon[data-status="<"]::before {
+    content: "\ec03";
+    color: var(--text-faint);
+    transform: scaleX(-1);
+}
+
+.tasksCalendar .task-status-icon[data-status="D"]::before {
+    content: "\ec04";
+    color: rgb(var(--chbx-h));
+}
+
+.tasksCalendar .task-status-icon[data-status="?"]::before {
+    content: "\ec05";
+    color: rgb(var(--chbx-q));
+}
+
+.tasksCalendar .task-status-icon[data-status="!"]::before {
+    content: "\ec08";
+    color: rgb(var(--chbx-i));
+}
+
+.tasksCalendar .task-status-icon[data-status="+"]::before {
+    content: "\ec06";
+    color: rgb(var(--chbx-a));
+}
+
+.tasksCalendar .task-status-icon[data-status="/"]::before {
+    content: "\ec17";
+    color: var(--accent, var(--interactive-accent));
+}
+
+.tasksCalendar .task-status-icon[data-status="R"]::before {
+    content: "\ec07";
+    color: rgb(var(--chbx-R));
+}
+
+.tasksCalendar .task-status-icon[data-status="i"]::before {
+    content: "\ec09";
+    color: rgb(var(--chbx-id));
+}
+
+.tasksCalendar .task-status-icon[data-status="B"]::before {
+    content: "\ec10";
+    color: rgb(var(--chbx-B));
+}
+
+.tasksCalendar .task-status-icon[data-status="P"]::before {
+    content: "\ec11";
+    color: rgb(var(--chbx-P));
+}
+
+.tasksCalendar .task-status-icon[data-status="C"]::before {
+    content: "\ec12";
+    color: rgb(var(--chbx-C));
+}
+
+.tasksCalendar .task-status-icon[data-status="I"]::before {
+    content: "\ec16";
+    color: rgb(var(--chbx-I));
+}
+
+.tasksCalendar .task-status-icon[data-status="Q"]::before {
+    content: "\ec13";
+    color: rgb(var(--chbx-R));
+}
+
+.tasksCalendar .task-status-icon[data-status="N"]::before {
+    content: "\ec14";
+    color: rgb(var(--chbx-N));
+}
+
+.tasksCalendar .task-status-icon[data-status="b"]::before {
+    content: "\ec15";
+    color: rgb(var(--chbx-b));
+}
+
+.tasksCalendar .task-status-icon[data-status="p"]::before {
+    content: "\ec19";
+    color: rgb(var(--chbx-R));
+}
+
+.tasksCalendar .task-status-icon[data-status="E"]::before {
+    content: "\ec18";
+    color: rgb(var(--chbx-I));
+}
+
+.tasksCalendar .task-status-icon[data-status="L"]::before {
+    content: "\ec21";
+    color: rgb(var(--chbx-N));
+}
+
+.tasksCalendar .task-status-icon[data-status="A"]::before {
+    content: "\ec20";
+    color: rgb(var(--chbx-P));
+}
+
+.tasksCalendar .task-status-icon[data-status="r"]::before {
+    content: "\ec22";
+    color: rgb(var(--chbx-r));
+}
+
+.tasksCalendar .task-status-icon[data-status="c"]::before {
+    content: "\ec29";
+    color: rgb(var(--chbx-c));
+}
+
+.tasksCalendar .task-status-icon[data-status="o"]::before {
+    content: "\ec24";
+    color: rgb(var(--chbx-b));
+}
+
+.tasksCalendar .task-status-icon[data-status="d"]::before {
+    content: "\ec25";
+    color: rgb(var(--chbx-I));
+}
+
+.tasksCalendar .task-status-icon[data-status="T"]::before {
+    content: "\ec26";
+    color: rgb(var(--chbx-R));
+}
+
+.tasksCalendar .task-status-icon[data-status="t"]::before {
+    content: "\ec27";
+    color: rgb(var(--chbx-R));
+}
+
+.tasksCalendar .task-status-icon[data-status="O"]::before {
+    content: "\e805";
+    color: hsl(var(--interactive-accent-hsl));
+}
+
+.tasksCalendar .task-status-icon[data-status="F"]::before {
+    content: "\ec28";
+    color: rgb(var(--chbx-h));
+}
+
+.tasksCalendar .task-status-icon[data-status="W"]::before {
+    content: "\e813";
+    color: rgb(var(--chbx-P));
+}
+
+.tasksCalendar .task-status-icon[data-status="~"]::before {
+    content: "\ec33";
+    color: rgb(var(--chbx-C));
+}
+
+.tasksCalendar .task-status-icon[data-status="@"]::before {
+    content: "\e900";
+    color: rgb(var(--chbx-b));
+}
+
+.tasksCalendar .task-status-icon[data-status="f"]::before {
+    content: "\e81e";
+    color: rgb(var(--chbx-N));
+}
+
+.tasksCalendar .task-status-icon[data-status="H"]::before {
+    content: "\ec30";
+    color: rgb(var(--chbx-a));
+}
+
+.tasksCalendar .task-status-icon[data-status="&"]::before {
+    content: "\ec32";
+    color: rgb(var(--chbx-B));
+}
+
+.tasksCalendar .task-status-icon[data-status="s"]::before {
+    content: "\ec31";
+    color: rgb(var(--chbx-d));
+}
+
+/* Keep icon and task text aligned */
+.tasksCalendar .task-status-text {
+    min-width: 0;
+}
 
 /* Style classes */
 .tasksCalendar[view='week'].style1 .grid, .iconStyle1 { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(6, 1fr); }
