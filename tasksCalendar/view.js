@@ -34,11 +34,12 @@ if (pages == "") {
 tasks = tasks.map(task => {
     const status = String(task.status ?? " ");
     const isCompleted = status.toLowerCase() === "x";
+    const isCancelled = status === "-";
 
     return {
         ...task,
         completed: isCompleted,
-        checked: isCompleted
+        checked: isCompleted || isCancelled
     };
 });
 // End of GPT generated code
