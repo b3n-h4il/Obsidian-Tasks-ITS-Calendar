@@ -27,6 +27,22 @@ if (pages == "") {
   var tasks = dv.pages(pages).file.tasks;
 }
 
+// GPT generated code here:
+// The goal is to avoid showing custom ITS  checkboxes as completed tasks
+
+// Normalize task status: only x/X means completed
+tasks = tasks.map(task => {
+    const status = String(task.status ?? " ");
+    const isCompleted = status.toLowerCase() === "x";
+
+    return {
+        ...task,
+        completed: isCompleted,
+        checked: isCompleted
+    };
+});
+// End of GPT generated code
+
 // Variables
 var done, doneWithoutCompletionDate, due, recurrence, overdue, start, scheduled, process, cancelled, dailyNote, dailyNoteRegEx;
 if (!dailyNoteFormat) { dailyNoteFormat = "YYYY-MM-DD" };
