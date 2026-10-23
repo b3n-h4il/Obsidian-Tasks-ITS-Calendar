@@ -235,7 +235,19 @@ function setTask(obj, cls) {
  	} else {
  		var style = "--task-background:#7D7D7D33;--task-color:#7D7D7D;--dark-task-text-color:"+transColor("#7D7D7D", darker)+";--light-task-text-color:"+transColor("#7D7D7D", lighter);
  	};
-	var newTask = taskTemplate.replace("{{taskContent}}", taskText).replace("{{class}}", cls).replace("{{taskPath}}", taskLine).replace("{{due}}","done").replaceAll("{{style}}",style).replace("{{title}}", noteFilename + ": " + taskText).replace("{{note}}",noteFilename).replace("{{icon}}",taskIcon).replace("{{relative}}",relative);
+	var status = String(obj.status ?? " ");
+    var displayStatus = status === " " ? "space" : status;
+	var newTask = taskTemplate
+    .replace("{{taskContent}}", taskText)
+    .replace("{{class}}", cls)
+    .replace("{{taskPath}}", taskLine)
+    .replace("{{due}}", "done")
+    .replaceAll("{{style}}", style)
+    .replace("{{title}}", noteFilename + ": " + taskText)
+    .replace("{{note}}", noteFilename)
+    .replace("{{icon}}", taskIcon)
+    .replace("{{relative}}", relative)
+    .replace("{{status}}", displayStatus);
 	return newTask;
 };
 
