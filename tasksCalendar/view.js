@@ -4,45 +4,41 @@ let {pages, view, firstDayOfWeek, globalTaskFilter, dailyNoteFolder, dailyNoteFo
 if (!pages && pages!="") { dv.span('> [!ERROR] Missing pages parameter\n> \n> Please set the pages parameter like\n> \n> `pages: ""`'); return false };
 if (!options.includes("style")) { dv.span('> [!ERROR] Missing style parameter\n> \n> Please set a style inside options parameter like\n> \n> `options: "style1"`'); return false };
 if (!view) { dv.span('> [!ERROR] Missing view parameter\n> \n> Please set a default view inside view parameter like\n> \n> `view: "month"`'); return false };
-if (firstDayOfWeek) { 
-	if (firstDayOfWeek.match(/[|\\0123456]/g) == null) { 
+if (firstDayOfWeek) {
+	if (firstDayOfWeek.match(/[|\\0123456]/g) == null) {
 		dv.span('> [!ERROR] Wrong value inside firstDayOfWeek parameter\n> \n> Please choose a number between 0 and 6');
 		return false
 	};
 } else {
-	dv.span('> [!ERROR] Missing firstDayOfWeek parameter\n> \n> Please set the first day of the week inside firstDayOfWeek parameter like\n> \n> `firstDayOfWeek: "1"`'); 
-	return false 
+	dv.span('> [!ERROR] Missing firstDayOfWeek parameter\n> \n> Please set the first day of the week inside firstDayOfWeek parameter like\n> \n> `firstDayOfWeek: "1"`');
+	return false
 };
 if (startPosition) { if (!startPosition.match(/\d{4}\-\d{1,2}/gm)) { dv.span('> [!ERROR] Wrong startPosition format\n> \n> Please set a startPosition with the following format\n> \n> Month: `YYYY-MM` | Week: `YYYY-ww`'); return false }};
 if (dailyNoteFormat) { if (dailyNoteFormat.match(/[|\\YMDWwd.,-: \[\]]/g).length != dailyNoteFormat.length) { dv.span('> [!ERROR] The `dailyNoteFormat` contains invalid characters'); return false }};
 
 // Get, Set, Eval Pages
 if (pages == "") {
-  var tasks = dv.pages().file.tasks;
+	var tasks = dv.pages().file.tasks;
 } else if (typeof pages === "string" && pages.startsWith("dv.pages")) {
-  var tasks = eval(pages);
-} else if (typeof pages && pages.every(p => p.task)) {
-  var tasks = pages;
+	var tasks = eval(pages);
+} else if (Array.isArray(pages) && pages.every(p => p.task)) {
+	var tasks = pages;
 } else {
-  var tasks = dv.pages(pages).file.tasks;
+	var tasks = dv.pages(pages).file.tasks;
 }
-
-// GPT generated code here:
-// The goal is to avoid showing custom ITS  checkboxes as completed tasks
 
 // Normalize task status: only x/X means completed
 tasks = tasks.map(task => {
-    const status = String(task.status ?? " ");
-    const isCompleted = status.toLowerCase() === "x";
-    const isCancelled = status === "-";
+	const status = String(task.status ?? " ");
+	const isCompleted = status.toLowerCase() === "x";
+	const isCancelled = status === "-";
 
-    return {
-        ...task,
-        completed: isCompleted,
-        checked: isCompleted || isCancelled
-    };
+	return {
+		...task,
+		completed: isCompleted,
+		checked: isCompleted || isCancelled
+	};
 });
-// End of GPT generated code
 
 // Variables
 var done, doneWithoutCompletionDate, due, recurrence, overdue, start, scheduled, process, cancelled, dailyNote, dailyNoteRegEx;
@@ -53,7 +49,15 @@ var tMonth = moment().format("M");
 var tDay = moment().format("d");
 var tYear = moment().format("YYYY");
 var tid = (new Date()).getTime();
-if (startPosition) { var selectedMonth = moment(startPosition, "YYYY-MM").date(1);  var selectedList = moment(startPosition, "YYYY-MM").date(1); var selectedWeek = moment(startPosition, "YYYY-ww").startOf("week") } else { var selectedMonth = moment(startPosition).date(1); var selectedWeek = moment(startPosition).startOf("week"); var selectedList = moment(startPosition).date(1); };
+if (startPosition) {
+	var selectedMonth = moment(startPosition, "YYYY-MM").date(1);
+	var selectedList = moment(startPosition, "YYYY-MM").date(1);
+	var selectedWeek = moment(startPosition, "YYYY-ww").startOf("week")
+} else {
+	var selectedMonth = moment(startPosition).date(1);
+	var selectedWeek = moment(startPosition).startOf("week");
+	var selectedList = moment(startPosition).date(1);
+};
 var selectedDate = eval("selected"+capitalize(view));
 var arrowLeftIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>';
 var arrowRightIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
@@ -66,8 +70,11 @@ var calendarCheckIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 var calendarHeartIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h7"></path><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path><path d="M21.29 14.7a2.43 2.43 0 0 0-2.65-.52c-.3.12-.57.3-.8.53l-.34.34-.35-.34a2.43 2.43 0 0 0-2.65-.53c-.3.12-.56.3-.79.53-.95.94-1 2.53.2 3.74L17.5 22l3.6-3.55c1.2-1.21 1.14-2.8.19-3.74Z"></path></svg>';
 var cellTemplate = "<div class='cell {{class}}' data-weekday='{{weekday}}'><a class='internal-link cellName' href='{{dailyNote}}'>{{cellName}}</a><div class='cellContent'>{{cellContent}}</div></div>";
 var taskTemplate = "<a class='internal-link' href='{{taskPath}}'><div class='task {{class}}' style='{{style}}' title='{{title}}'><div class='inner'><div class='note'>{{note}}</div><div class='icon'>{{icon}}</div><div class='description' data-relative='{{relative}}'><span class='task-status-icon' data-status='{{status}}'></span><span class='task-status-text'>{{taskContent}}</span></div></div></div></a>";
-const rootNode = dv.el("div", "", {cls: "tasksCalendar "+options, attr: {id: "tasksCalendar"+tid, view: view, style: 'position:relative;-webkit-user-select:none!important'}});
+
+// Criação do rootNode garantindo o elemento <span> interno esperado pelos seletores
+const rootNode = dv.el("div", "<span></span>", {cls: "tasksCalendar "+options, attr: {id: "tasksCalendar"+tid, view: view, style: 'position:relative;-webkit-user-select:none!important'}});
 if (css) { var style = document.createElement("style"); style.innerHTML = css; rootNode.append(style) };
+
 var taskDoneIcon = "✅";
 var taskDueIcon = "📅";
 var taskScheduledIcon = "⏳";
@@ -78,7 +85,7 @@ var taskCancelledIcon = "🚫";
 var taskStartIcon = "🛫";
 var taskDailyNoteIcon = "📄";
 
-// Initialze
+// Initialize
 getMeta(tasks);
 setButtons();
 setStatisticPopUp();
@@ -172,26 +179,26 @@ function momentToRegex(momentFormat) {
 	momentFormat = momentFormat.replaceAll("-", "\\-");
 	momentFormat = momentFormat.replaceAll(":", "\\:");
 	momentFormat = momentFormat.replaceAll(" ", "\\s");
-	
+
 	momentFormat = momentFormat.replace("dddd", "\\w{1,}");
 	momentFormat = momentFormat.replace("ddd", "\\w{1,3}");
 	momentFormat = momentFormat.replace("dd", "\\w{2}");
 	momentFormat = momentFormat.replace("d", "\\d{1}");
-	
+
 	momentFormat = momentFormat.replace("YYYY", "\\d{4}");
 	momentFormat = momentFormat.replace("YY", "\\d{2}");
-	
+
 	momentFormat = momentFormat.replace("MMMM", "\\w{1,}");
 	momentFormat = momentFormat.replace("MMM", "\\w{3}");
 	momentFormat = momentFormat.replace("MM", "\\d{2}");
-	
+
 	momentFormat = momentFormat.replace("DDDD", "\\d{3}");
 	momentFormat = momentFormat.replace("DDD", "\\d{1,3}");
 	momentFormat = momentFormat.replace("DD", "\\d{2}");
 	momentFormat = momentFormat.replace("D", "\\d{1,2}");
-	
+
 	momentFormat = momentFormat.replace("ww", "\\d{1,2}");
-	
+
 	regEx = "/^(" + momentFormat + ")$/";
 
 	return regEx;
@@ -217,7 +224,7 @@ function setTask(obj, cls) {
 	var noteColor = getMetaFromNote(obj, "color");
 	var textColor = getMetaFromNote(obj, "textColor");
 	var noteIcon = getMetaFromNote(obj, "icon");
-	var taskText = obj.text.replace("'", "&apos;");
+	var taskText = obj.text.replace(/(^|\s)#tarefa(?=\s|$)/g, "$1").replace("'", "&apos;");
 	var taskPath = obj.link.path.replace("'", "&apos;");
 	var taskIcon = eval("task"+capitalize(cls)+"Icon");
 	if (obj.due) { var relative = moment(obj.due).fromNow() } else { var relative = "" };
@@ -225,35 +232,34 @@ function setTask(obj, cls) {
 	if (noteIcon) { noteFilename = noteIcon+"&nbsp;"+noteFilename } else { noteFilename = taskIcon+"&nbsp;"+noteFilename; cls += " noNoteIcon" };
 	var taskSubpath = obj.header.subpath;
 	var taskLine = taskSubpath ? taskPath+"#"+taskSubpath : taskPath;
- 	if (noteColor && textColor) {
- 		var style = "--task-background:"+noteColor+"33;--task-color:"+noteColor+";--dark-task-text-color:"+textColor+";--light-task-text-color:"+textColor;
- 	} else if (noteColor && !textColor){
- 		var style = "--task-background:"+noteColor+"33;--task-color:"+noteColor+";--dark-task-text-color:"+transColor(noteColor, darker)+";--light-task-text-color:"+transColor(noteColor, lighter);
+	if (noteColor && textColor) {
+		var style = "--task-background:"+noteColor+"33;--task-color:"+noteColor+";--dark-task-text-color:"+textColor+";--light-task-text-color:"+textColor;
+	} else if (noteColor && !textColor){
 		var style = "--task-background:"+noteColor+"33;--task-color:"+noteColor+";--dark-task-text-color:"+transColor(noteColor, darker)+";--light-task-text-color:"+transColor(noteColor, lighter);
- 	} else if (!noteColor && textColor ){
- 		var style = "--task-background:#7D7D7D33;--task-color:#7D7D7D;--dark-task-text-color:"+transColor(textColor, darker)+";--light-task-text-color:"+transColor(textColor, lighter);
- 	} else {
- 		var style = "--task-background:#7D7D7D33;--task-color:#7D7D7D;--dark-task-text-color:"+transColor("#7D7D7D", darker)+";--light-task-text-color:"+transColor("#7D7D7D", lighter);
- 	};
+	} else if (!noteColor && textColor ){
+		var style = "--task-background:#7D7D7D33;--task-color:#7D7D7D;--dark-task-text-color:"+transColor(textColor, darker)+";--light-task-text-color:"+transColor(textColor, lighter);
+	} else {
+		var style = "--task-background:#7D7D7D33;--task-color:#7D7D7D;--dark-task-text-color:"+transColor("#7D7D7D", darker)+";--light-task-text-color:"+transColor("#7D7D7D", lighter);
+	};
 	var status = String(obj.status ?? " ");
-    var displayStatus = status === " " ? "space" : status;
+	var displayStatus = status === " " ? "space" : status;
 	var newTask = taskTemplate
-    .replace("{{taskContent}}", taskText)
-    .replace("{{class}}", cls)
-    .replace("{{taskPath}}", taskLine)
-    .replace("{{due}}", "done")
-    .replaceAll("{{style}}", style)
-    .replace("{{title}}", noteFilename + ": " + taskText)
-    .replace("{{note}}", noteFilename)
-    .replace("{{icon}}", taskIcon)
-    .replace("{{relative}}", relative)
-    .replace("{{status}}", displayStatus);
+		.replace("{{taskContent}}", taskText)
+		.replace("{{class}}", cls)
+		.replace("{{taskPath}}", taskLine)
+		.replace("{{due}}", "done")
+		.replaceAll("{{style}}", style)
+		.replace("{{title}}", noteFilename + ": " + taskText)
+		.replace("{{note}}", noteFilename)
+		.replace("{{icon}}", taskIcon)
+		.replace("{{relative}}", relative)
+		.replace("{{status}}", displayStatus);
 	return newTask;
 };
 
 function setTaskContentContainer(currentDate) {
 	var cellContent = "";
-	
+
 	function compareFn(a, b) {
 		if (a.priority.toUpperCase() < b.priority.toUpperCase()) {
 			return -1;
@@ -275,7 +281,7 @@ function setTaskContentContainer(currentDate) {
 	function showTasks(tasksToShow, type) {
 		const sorted = [...tasksToShow].sort(compareFn);
 		for (var t = 0; t < sorted.length; t++) {
-			cellContent += setTask(sorted[t], type)
+			cellContent += setTask(sorted[t], type);
 		};
 	};
 
@@ -299,98 +305,159 @@ function setButtons() {
 	setButtonEvents();
 };
 
+
+
 function setButtonEvents() {
-	rootNode.querySelectorAll('button').forEach(btn => btn.addEventListener('click', (() => {
-		var activeView = rootNode.getAttribute("view");
-		if ( btn.className == "previous" ) {
-			if (activeView == "month") {
-				selectedDate = moment(selectedDate).subtract(1, "months");
-				getMonth(tasks, selectedDate);
-			} else if (activeView == "week") {
-				selectedDate = moment(selectedDate).subtract(7, "days").startOf("week");
-				getWeek(tasks, selectedDate);
-			} else if (activeView == "list") {
-				selectedDate = moment(selectedDate).subtract(1, "months");
-				getList(tasks, selectedDate);
-			}
-		} else if ( btn.className == "current") {
-			if (activeView == "month") {
-				selectedDate = moment().date(1);
-				getMonth(tasks, selectedDate);
-			} else if (activeView == "week") {
-				selectedDate = moment().startOf("week");
-				getWeek(tasks, selectedDate);
-			} else if (activeView == "list") {
-				selectedDate = moment().date(1);
-				getList(tasks, selectedDate);
-			};
-		} else if ( btn.className == "next" ) {
-			if (activeView == "month") {
-				selectedDate = moment(selectedDate).add(1, "months");
-				getMonth(tasks, selectedDate);
-			} else if (activeView == "week") {
-				selectedDate = moment(selectedDate).add(7, "days").startOf("week");
-				getWeek(tasks, selectedDate);
-			} else if (activeView == "list") {
-				selectedDate = moment(selectedDate).add(1, "months");
-				getList(tasks, selectedDate);
-			};
-		} else if ( btn.className == "filter" ) {
-			rootNode.classList.toggle("filter");
-			rootNode.querySelector('#statisticDone').classList.remove("active");
-			rootNode.classList.remove("focusDone");
-		} else if ( btn.className == "monthView" ) {
-			if ( moment().format("ww-YYYY") == moment(selectedDate).format("ww-YYYY") ) {
-				selectedDate = moment().date(1);
-			} else {
-				selectedDate = moment(selectedDate).date(1);
-			};
-			getMonth(tasks, selectedDate);
-		} else if ( btn.className == "listView" ) {
-			if ( moment().format("ww-YYYY") == moment(selectedDate).format("ww-YYYY") ) {
-				selectedDate = moment().date(1);
-			} else {
-				selectedDate = moment(selectedDate).date(1);
-			};
-			getList(tasks, selectedDate);
-		} else if ( btn.className == "weekView" ) {
-			if (rootNode.getAttribute("view") == "week") {
-				var leftPos = rootNode.querySelector("button.weekView").offsetLeft;
-				rootNode.querySelector(".weekViewContext").style.left = leftPos+"px";
-				rootNode.querySelector(".weekViewContext").classList.toggle("active");
-				if (rootNode.querySelector(".weekViewContext").classList.contains("active")) {
-					var closeContextListener = function() {
-						rootNode.querySelector(".weekViewContext").classList.remove("active");
-						rootNode.removeEventListener("click", closeContextListener, false);
-					};
-					setTimeout(function() {
-						rootNode.addEventListener("click", closeContextListener, false);
-					}, 100);
-				};
-			} else {
-				if (moment().format("MM-YYYY") != moment(selectedDate).format("MM-YYYY")) {
-					selectedDate = moment(selectedDate).startOf("month").startOf("week");
-				} else {
-					selectedDate = moment().startOf("week");
-				};
-				getWeek(tasks, selectedDate);
-			};
-		} else if ( btn.className == "statistic" ) {
-			rootNode.querySelector(".statisticPopup").classList.toggle("active");
-		};
-		btn.blur();
-	})));
-	rootNode.addEventListener('contextmenu', function(event) {
-		event.preventDefault();
-	});
+    rootNode.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            try {
+                var activeView = rootNode.getAttribute("view");
+
+                if (btn.classList.contains("previous")) {
+                    if (activeView === "month") {
+                        selectedDate = moment(selectedDate).subtract(1, "months");
+                        getMonth(tasks, selectedDate);
+                    } else if (activeView === "week") {
+                        selectedDate = moment(selectedDate)
+                            .subtract(7, "days")
+                            .startOf("week");
+                        getWeek(tasks, selectedDate);
+                    } else if (activeView === "list") {
+                        selectedDate = moment(selectedDate).subtract(1, "months");
+                        getList(tasks, selectedDate);
+                    }
+
+                } else if (btn.classList.contains("current")) {
+                    if (activeView === "month") {
+                        selectedDate = moment().date(1);
+                        getMonth(tasks, selectedDate);
+                    } else if (activeView === "week") {
+                        selectedDate = moment().startOf("week");
+                        getWeek(tasks, selectedDate);
+                    } else if (activeView === "list") {
+                        selectedDate = moment().date(1);
+                        getList(tasks, selectedDate);
+                    }
+
+                } else if (btn.classList.contains("next")) {
+                    if (activeView === "month") {
+                        selectedDate = moment(selectedDate).add(1, "months");
+                        getMonth(tasks, selectedDate);
+                    } else if (activeView === "week") {
+                        selectedDate = moment(selectedDate)
+                            .add(7, "days")
+                            .startOf("week");
+                        getWeek(tasks, selectedDate);
+                    } else if (activeView === "list") {
+                        selectedDate = moment(selectedDate).add(1, "months");
+                        getList(tasks, selectedDate);
+                    }
+
+                } else if (btn.classList.contains("filter")) {
+                    rootNode.classList.toggle("filter");
+
+                    var statDone = rootNode.querySelector("#statisticDone");
+                    if (statDone) {
+                        statDone.classList.remove("active");
+                    }
+
+                    rootNode.classList.remove("focusDone");
+
+                } else if (btn.classList.contains("monthView")) {
+                    if (moment().format("ww-YYYY") === moment(selectedDate).format("ww-YYYY")) {
+                        selectedDate = moment().date(1);
+                    } else {
+                        selectedDate = moment(selectedDate).date(1);
+                    }
+
+                    getMonth(tasks, selectedDate);
+
+                } else if (btn.classList.contains("listView")) {
+                    if (moment().format("ww-YYYY") === moment(selectedDate).format("ww-YYYY")) {
+                        selectedDate = moment().date(1);
+                    } else {
+                        selectedDate = moment(selectedDate).date(1);
+                    }
+
+                    getList(tasks, selectedDate);
+
+                } else if (btn.classList.contains("weekView")) {
+                    if (activeView === "week") {
+                        var weekViewButton = rootNode.querySelector("button.weekView");
+                        var weekViewContext = rootNode.querySelector(".weekViewContext");
+
+                        if (weekViewButton && weekViewContext) {
+                            var leftPos = weekViewButton.offsetLeft;
+                            weekViewContext.style.left = leftPos + "px";
+                            weekViewContext.classList.toggle("active");
+
+                            if (weekViewContext.classList.contains("active")) {
+                                var closeContextListener = function() {
+                                    weekViewContext.classList.remove("active");
+                                    rootNode.removeEventListener(
+                                        "click",
+                                        closeContextListener,
+                                        false
+                                    );
+                                };
+
+                                setTimeout(function() {
+                                    rootNode.addEventListener(
+                                        "click",
+                                        closeContextListener,
+                                        false
+                                    );
+                                }, 100);
+                            }
+                        }
+                    } else {
+                        if (
+                            moment().format("MM-YYYY") !==
+                            moment(selectedDate).format("MM-YYYY")
+                        ) {
+                            selectedDate = moment(selectedDate)
+                                .startOf("month")
+                                .startOf("week");
+                        } else {
+                            selectedDate = moment().startOf("week");
+                        }
+
+                        getWeek(tasks, selectedDate);
+                    }
+
+                } else if (btn.classList.contains("statistic")) {
+                    var statisticPopup = rootNode.querySelector(".statisticPopup");
+
+                    if (statisticPopup) {
+                        statisticPopup.classList.toggle("active");
+                    }
+                }
+
+            } catch (error) {
+                const currentButton = rootNode.querySelector("button.current");
+
+                if (currentButton) {
+                    currentButton.textContent = "ERRO: " + error.message;
+                }
+
+                console.error("Tasks Calendar:", error);
+            }
+
+            btn.blur();
+        });
+    });
+
+    rootNode.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+    });
 };
+
 
 function setWrapperEvents() {
 	rootNode.querySelectorAll('.wrapperButton').forEach(wBtn => wBtn.addEventListener('click', (() => {
 		var week = wBtn.getAttribute("data-week");
 		var year = wBtn.getAttribute("data-year");
 		selectedDate = moment(moment(year).add(week, "weeks")).startOf("week");
-		rootNode.querySelector(`#tasksCalendar${tid} .grid`).remove();
 		getWeek(tasks, selectedDate);
 	})));
 };
@@ -409,7 +476,7 @@ function setStatisticPopUpEvents() {
 			for (const liElement of liElements) {
 				liElement.classList.remove('active');
 			};
-			li.classList.add("active");
+			li.classList.add('active');
 			rootNode.classList.remove.apply(rootNode.classList, Array.from(rootNode.classList).filter(v=>v.startsWith("focus")));
 			rootNode.classList.add("focus"+capitalize(group));
 		};
@@ -438,7 +505,7 @@ function setWeekViewContextEvents() {
 			for (const liElement of liElements) {
 				liElement.classList.remove('active');
 			};
-			li.classList.add("active");
+			li.classList.add('active');
 			rootNode.classList.remove.apply(rootNode.classList, Array.from(rootNode.classList).filter(v=>v.startsWith("style")));
 			rootNode.classList.add(selectedStyle);
 		};
@@ -464,7 +531,7 @@ function setStatisticValues(dueCounter, doneCounter, overdueCounter, startCounte
 	var tasksRemaining = taskCounter - doneCounter;
 	var percentage = Math.round(100/(dueCounter+doneCounter+overdueCounter)*doneCounter);
 	percentage = isNaN(percentage) ? 100 : percentage;
-	
+
 	if (dueCounter == 0 && doneCounter == 0) {
 		rootNode.querySelector("button.statistic").innerHTML = calendarHeartIcon;
 	} else if (tasksRemaining > 0) {
@@ -485,12 +552,17 @@ function setStatisticValues(dueCounter, doneCounter, overdueCounter, startCounte
 };
 
 function removeExistingView() {
-	if (rootNode.querySelector(`#tasksCalendar${tid} .grid`)) {
-		rootNode.querySelector(`#tasksCalendar${tid} .grid`).remove();
-	} else if (rootNode.querySelector(`#tasksCalendar${tid} .list`)) {
-		rootNode.querySelector(`#tasksCalendar${tid} .list`).remove();
-	};
-};
+	const grid = rootNode.querySelector(".grid");
+	const list = rootNode.querySelector(".list");
+
+	if (grid) {
+		grid.remove();
+	}
+
+	if (list) {
+		list.remove();
+	}
+}
 
 function getMonth(tasks, month) {
 	removeExistingView();
@@ -507,10 +579,10 @@ function getMonth(tasks, month) {
 	var scheduledCounter = 0;
 	var recurrenceCounter = 0;
 	var dailyNoteCounter = 0;
-	
+
 	// Move First Week Of Month To Second Week In Month View
 	if (firstDayOfMonth == 0) { firstDayOfMonth = 7};
-	
+
 	// Set Grid Heads
 	var gridHeads = "";
 	for (h=0-firstDayOfMonth+parseInt(firstDayOfWeek);h<7-firstDayOfMonth+parseInt(firstDayOfWeek);h++) {
@@ -522,7 +594,7 @@ function getMonth(tasks, month) {
 			gridHeads += "<div class='gridHead' data-weekday='" + weekDayNr + "'>" + weekDayName + "</div>";
 		};
 	};
-	
+
 	// Set Wrappers
 	var wrappers = "";
 	var starts = 0-firstDayOfMonth+parseInt(firstDayOfWeek);
@@ -545,7 +617,7 @@ function getMonth(tasks, month) {
 
 			// Filter Tasks
 			getTasks(currentDate);
-			
+
 			// Count Events Only From Selected Month
 			if (moment(month).format("MM") == moment(month).add(i, "days").format("MM")) {
 				dueCounter += due.length;
@@ -562,10 +634,10 @@ function getMonth(tasks, month) {
 					overdueCounter = overdue.length;
 				};
 			};
-			
+
 			// Set New Content Container
 			var cellContent = setTaskContentContainer(currentDate);
-		
+
 			// Set Cell Name And Weekday
 			if ( moment(month).add(i, "days").format("D") == 1 ) {
 				var cell = cellTemplate.replace("{{date}}", currentDate).replace("{{cellName}}", longDayName).replace("{{cellContent}}", cellContent).replace("{{weekday}}", weekDay).replace("{{dailyNote}}", dailyNotePath);
@@ -573,7 +645,7 @@ function getMonth(tasks, month) {
 			} else {
 				var cell = cellTemplate.replace("{{date}}", currentDate).replace("{{cellName}}", shortDayName).replace("{{cellContent}}", cellContent).replace("{{weekday}}", weekDay).replace("{{dailyNote}}", dailyNotePath);
 			};
-		
+
 			// Set prevMonth, currentMonth, nextMonth
 			if (i < 0) {
 				cell = cell.replace("{{class}}", "prevMonth");
@@ -600,7 +672,7 @@ function getMonth(tasks, month) {
 function getWeek(tasks, week) {
 	removeExistingView();
 	var currentTitle = "<span>"+moment(week).format("YYYY")+"</span><span> "+moment(week).format("[W]w")+"</span>";
-	rootNode.querySelector('button.current').innerHTML = currentTitle
+	rootNode.querySelector('button.current').innerHTML = currentTitle;
 	var gridContent = "";
 	var currentWeekday = moment(week).format("d");
 	var weekNr = moment(week).format("[W]w");
@@ -611,17 +683,17 @@ function getWeek(tasks, week) {
 	var scheduledCounter = 0;
 	var recurrenceCounter = 0;
 	var dailyNoteCounter = 0;
-	
+
 	for (i=0-currentWeekday+parseInt(firstDayOfWeek);i<7-currentWeekday+parseInt(firstDayOfWeek);i++) {
 		var currentDate = moment(week).add(i, "days").format("YYYY-MM-DD");
 		if (!dailyNoteFolder) {var dailyNotePath = currentDate} else {var dailyNotePath = dailyNoteFolder+"/"+currentDate};
 		var weekDay = moment(week).add(i, "days").format("d");
 		var dayName = moment(currentDate).format("ddd D.");
 		var longDayName = moment(currentDate).format("ddd, D. MMM");
-		
+
 		// Filter Tasks
 		getTasks(currentDate);
-		
+
 		// Count Events From Selected Week
 		dueCounter += due.length;
 		dueCounter += recurrence.length;
@@ -635,12 +707,9 @@ function getWeek(tasks, week) {
 		if (moment().format("YYYY-MM-DD") == moment(week).add(i, "days").format("YYYY-MM-DD")) {
 			overdueCounter = overdue.length;
 		};
-	
+
 		// Set New Content Container
 		var cellContent = setTaskContentContainer(currentDate);
-		
-		// Set Cell Name And Weekday
-		var cell = cellTemplate.replace("{{date}}", currentDate).replace("{{cellName}}", longDayName).replace("{{cellContent}}", cellContent).replace("{{weekday}}", weekDay).replace("{{dailyNote}}", dailyNotePath);
 
 		// Set Cell Name And Weekday
 		if ( moment(week).add(i, "days").format("D") == 1 ) {
@@ -648,7 +717,7 @@ function getWeek(tasks, week) {
 		} else {
 			var cell = cellTemplate.replace("{{date}}", currentDate).replace("{{cellName}}", dayName).replace("{{cellContent}}", cellContent).replace("{{weekday}}", weekDay).replace("{{dailyNote}}", dailyNotePath);
 		};
-			
+
 		// Set Today, Before Today, After Today
 		if (currentDate < tToday) {
 			cell = cell.replace("{{class}}", "beforeToday");
@@ -676,7 +745,7 @@ function getList(tasks, month) {
 	var scheduledCounter = 0;
 	var recurrenceCounter = 0;
 	var dailyNoteCounter = 0;
-	
+
 	// Loop Days From Current Month
 	for (i=0;i<moment(month).endOf('month').format("D");i++) {
 		var currentDate = moment(month).startOf('month').add(i, "days").format("YYYY-MM-DD");
@@ -684,7 +753,7 @@ function getList(tasks, month) {
 
 		// Filter Tasks
 		getTasks(currentDate);
-		
+
 		// Count Events
 		dueCounter += due.length;
 		dueCounter += recurrence.length;
@@ -699,7 +768,7 @@ function getList(tasks, month) {
 			overdueCounter = overdue.length;
 			var overdueDetails = "<details open class='overdue'><summary>Overdue</summary>" + setTaskContentContainer(currentDate) + "</details>";
 			var todayDetails = "<details open class='today'><summary>Today</summary>" + setTaskContentContainer(currentDate) + "</details>";
-			
+
 			// Upcoming
 			if (!upcomingDays) { upcomingDays = "7" };
 			var upcomingContent = "";
@@ -709,9 +778,9 @@ function getList(tasks, month) {
 				upcomingContent += setTaskContentContainer(next);
 			};
 			var upcomingDetails = "<details open class='upcoming'><summary>Upcoming</summary>" + upcomingContent + "</details>";
-			
+
 			listContent += "<details open class='today'><summary><span>" + moment(currentDate).format("dddd, D") + "</span><span class='weekNr'> " + moment(currentDate).format("[W]w") + "</span></summary><div class='content'>" + overdueDetails + todayDetails + upcomingDetails + "</div></details>"
-			
+
 		} else {
 			listContent += "<details open><summary><span>" + moment(currentDate).format("dddd, D") + "</span><span class='weekNr'> " + moment(currentDate).format("[W]w") + "</span></summary><div class='content'>" + setTaskContentContainer(currentDate) + "</div></details>"
 		};
@@ -719,12 +788,14 @@ function getList(tasks, month) {
 	rootNode.querySelector("span").appendChild(dv.el("div", listContent, {cls: "list", attr:{"data-month": monthName}}));
 	setStatisticValues(dueCounter, doneCounter, overdueCounter, startCounter, scheduledCounter, recurrenceCounter, dailyNoteCounter);
 	rootNode.setAttribute("view", "list");
-	
+
 	// Scroll To Today If Selected Month Is Current Month
 	if ( moment().format("YYYY-MM") == moment(month).format("YYYY-MM") ) {
 		var listElement = rootNode.querySelector(".list");
-		var todayElement = rootNode.querySelector(".today")
-		var scrollPos = todayElement.offsetTop - todayElement.offsetHeight + 85;
-		listElement.scrollTo(0, scrollPos);
+		var todayElement = rootNode.querySelector(".today");
+		if (todayElement && listElement) {
+			var scrollPos = todayElement.offsetTop - todayElement.offsetHeight + 85;
+			listElement.scrollTo(0, scrollPos);
+		}
 	};
 };

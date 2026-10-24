@@ -944,3 +944,31 @@ body.is-mobile .tasksCalendar .gridHead, body.is-mobile .tasksCalendar .cellName
 body.is-mobile .tasksCalendar[view='week']:not(.style4) .cellName,
 body.is-mobile .tasksCalendar[view='week']:not(.style4) .task { font-size: 13px !important; }
 body.is-mobile .tasksCalendar .statisticPopup li { font-size: 13px !important; }
+
+/* Mobile: restore reliable touch targets for calendar controls */
+body.is-mobile .tasksCalendar .buttons {
+    position: relative;
+    z-index: 100;
+    pointer-events: auto;
+}
+
+body.is-mobile .tasksCalendar .buttons button {
+    box-sizing: border-box;
+    min-width: 30px;
+    min-height: 30px;
+    height: 30px;
+    padding: 4px 6px !important;
+    margin-top: 0;
+    margin-bottom: 0;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+body.is-mobile .tasksCalendar .buttons button svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+
