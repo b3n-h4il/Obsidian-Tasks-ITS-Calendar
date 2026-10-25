@@ -9,6 +9,7 @@
 - #### Adds the capability to render  [ITS theme's custom checkboxes](https://publish.obsidian.md/slrvb-docs/ITS+Theme/Alternate+Checkboxes) icons to the calendar.
 - #### Fixes the controls, which did not work for me on Android
 - #### Removes my global Tasks plugin filter from all snuppet's visualizations
+- #### Integrates with *my* Notebook Navigator settings to create daily notes using the Templater plugin
 
 # Obsidian-Tasks-Calendar
 #### A custom view build with [Obsidian-Dataview](https://github.com/blacksmithgu/obsidian-dataview) to display tasks from [Obsidian-Tasks](https://github.com/obsidian-tasks-group/obsidian-tasks) and from your daily notes in a highly customisable calendar with a wide variety of views
